@@ -1,0 +1,20 @@
+2021/06/14 08:48:15 Micro started
+2021/06/14 08:53:01 Cleared cursors: 1
+2021/06/14 08:53:05 Cleared cursors: 1
+2021/06/14 09:36:36 Cleared cursors: 1
+2021/06/14 09:39:16 Cleared cursors: 1
+2021/06/14 09:40:20 Cleared cursors: 1
+2021/06/14 09:51:20 Cleared cursors: 1
+2021/06/14 10:10:21 Cleared cursors: 1
+2021/06/14 10:10:34 Cleared cursors: 1
+2021/06/14 10:26:54 Cleared cursors: 1
+2021/06/14 10:39:49 Cleared cursors: 1
+2021/06/14 10:40:20 Cleared cursors: 1
+2021/06/14 10:42:31 Cleared cursors: 1
+2021/06/14 10:43:11 Cleared cursors: 1
+2021/06/14 12:48:27 Cleared cursors: 1
+2021/06/14 12:48:52 Cleared cursors: 1
+2021/06/14 12:50:28 Cleared cursors: 1
+2021/06/14 14:05:19 Cleared cursors: 1
+2021/06/14 14:12:19 Cleared cursors: 1
+2021/06/14 14:42:28 Cleared cursors: 1
