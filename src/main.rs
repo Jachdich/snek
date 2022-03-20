@@ -291,6 +291,8 @@ impl Interpreter {
             '\\' => {
                 if count == 5 {
                     println!("{}", self.stack.pop().unwrap());
+                } else if count == 6 {
+                    print!("{}", char::from_u32(self.stack.pop().unwrap() as u32).unwrap());
                 } else if count == 4 {
                     let mut s = String::new();
                     std::io::stdin().read_line(&mut s).expect("some kind of IO error");
