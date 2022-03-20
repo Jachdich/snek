@@ -338,7 +338,7 @@ impl Interpreter {
     fn run(&mut self) {
         loop {
             let curr_ch = self.grid.get(self.x, self.y);
-            //println!("{}, {}, {}, {:?}, {:?}", highlight(&self.program, self.x, self.y), self.x, self.y, self.dir, self.stack);
+            println!("{}, {}, {}, {:?}, {:?}", highlight(&self.program, self.x, self.y), self.x, self.y, self.dir, self.stack);
             match curr_ch {
                 '_' => self.move_from_score(),
                 '/' => self.move_from_slash(),
