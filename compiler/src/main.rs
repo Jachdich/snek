@@ -125,29 +125,15 @@ impl CodeGen {
             Dir::N => {
                 match dir {
                     Dir::N  => (), //already handled above
-                    Dir::NE => { self.put('/'); self.go(Dir::NE); }
-                    Dir::E  => { self.change_dir(Dir::NE); self.put('_'); self.go(Dir::E); }
-                    Dir::SE => { self.change_dir(Dir::E);  self.go(Dir::S); self.put('\\'); self.go(Dir::SE); }
-                    Dir::S  => { self.change_dir(Dir::SE); self.go(Dir::W); self.put('|');  self.go(Dir::S); }
+                    Dir::NE => (),
+                    Dir::E  => { self.put('/'); self.go(Dir::NE); }
+                    Dir::SE => { self.change_dir(Dir::E);  self.put('_'); self.go(Dir::SE); }
+                    Dir::S  => { self.change_dir(Dir::SE); self.put('|'); self.go(Dir::S); }
                     Dir::SW => { self.change_dir(Dir::W);  self.go(Dir::S); self.put('/');  self.go(Dir::S); }
                     Dir::W  => { self.change_dir(Dir::NW); self.put('_'); self.go(Dir::E); }
                     Dir::NW => { self.put('\\'); self.go(Dir::NW); }
                 }
             },
-
-            Dir::NE => {
-                match dir {
-                    Dir::N  => { self.put('|'); self.go(Dir::N); } //TODO optimise
-                    Dir::NE => (),
-                    Dir::E  => { self.put('_'); self.go(Dir:: }
-                    Dir::SE => { self.change_dir(Dir::E);  self.go(Dir::S); self.put('\\'); self.go(Dir::SE); }
-                    Dir::S  => { self.change_dir(Dir::SE); self.go(Dir::W); self.put('|');  self.go(Dir::S); }
-                    Dir::SW => { self.change_dir(Dir::W);  self.go(Dir::S); self.put('/');  self.go(Dir::S); }
-                    Dir::W  => { self.change_dir(Dir::NW); self.put('_'); self.go(Dir::E); }
-                    Dir::NW => { self.put('\\'); self.go(Dir::NW); }
-                }
-            }
-            
             _ => ()
         }
 
