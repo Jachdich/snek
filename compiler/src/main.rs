@@ -1,3 +1,6 @@
+mod grid;
+
+use grid::Grid;
 use std::io::Write;
 
 #[derive(PartialEq, Debug)]
@@ -12,47 +15,18 @@ enum Dir {
     NW
 }
 
-struct Grid {
-    data: Vec<Vec<char>>,
-}
-
-impl Grid {
-    pub fn new() -> Self {
-    	Grid {
-    	    data: Vec::new()
-    	}
-    }
-
-    pub fn get(&self, x: usize, y: usize) -> char {
-        if y < self.data.len() {
-            if x < self.data[y].len() {
-                self.data[y][x]
-            } else {
-                ' '
-            }
-        } else {
-            ' '
+impl Dir {
+    pub fn to_vec(&self) -> Vec2 {
+        match self {
+            Dir::N  => Vec2::new(0, -1),
+            Dir::NE => Vec2::new(1, -1),
+            Dir::E  => Vec2::new(1,  0),
+            Dir::SE => Vec2::new(1,  1),
+            Dir::S  => Vec2::new(0,  1),
+            Dir::SW => Vec2::new(-1, 1),
+            Dir::W  => Vec2::new(-1, 0),
+            Dir::NW => Vec2::new(-1, -1),
         }
-    }
-
-    pub fn put(&mut self, x: usize, y: usize, val: char) {
-        if y >= self.data.len() {
-            self.data.resize(y + 1, Vec::new());
-        }
-        if x >= self.data[y].len() {
-            self.data[y].resize(x + 1, ' ');
-        }
-
-        self.data[y][x] = val;
-    }
-
-    pub fn to_string(&self) -> String {
-        let mut ret = String::new();
-        for line in &self.data {
-            ret.push_str(&line.iter().cloned().collect::<String>());
-            ret.push('\n');
-        }
-        ret
     }
 }
 
@@ -87,7 +61,7 @@ impl std::ops::AddAssign for Vec2 {
 
 
 #[macro_export]
-macro_rules! lconcat {
+macro_rules! lcat {
     ( $( $x: literal ),* ) => {
         [$($x,)*].join("\n")
     }
@@ -117,15 +91,40 @@ impl CodeGen {
         self.grid.put(self.pos.x as usize, self.pos.y as usize, val);
     }
 
-    pub fn putstr(&mut self, val: String) {
-        
+    pub fn putstr(&mut self, val: &str) {
+        let ngrid = Grid::from_string(val);
+        self.grid.merge(&ngrid, self.pos.x as usize, self.pos.y as usize);
+    }
+
+    fn get_closest_score(&self) -> Dir {
+        match self.target_dir {
+            Dir::N | Dir::NE | Dir::E | Dir::SE => Dir::E,
+            Dir::S | Dir::SW | Dir::W | Dir::NW => Dir::W,
+        }
+    }
+
+    fn change_dir(&mut self, dir: Dir) {
+        if dir == self.dir {
+            match dir {
+                Dir::N  => { self.put('/'); self.pos.y -= 1; }
+                Dir::NE => { self.put('_'); self.pos.x += 1; }
+                Dir::E  => { self.pos.y += 1; self.put('\\'); self.pos.x += 1; }
+                Dir::SE => { self.pos.y -= 1; self.put('_'); self.pos += Vec2{1, 1}; }
+                Dir::S  => { self.put('/'); self.pos.y += 1; }
+                Dir::SW => { self.pos.y -= 1; self.put('_'); self.pos += Vec2{1, 1}; }
+                Dir::W  => { self.put('\\'); self.pos += Vec2{-1, -1}; }
+                Dir::NW => { self.put}
+            }
+        }
+
+        self.dir = dir;
     }
     
     pub fn push(&mut self, n: usize) {
         if n == 0 {
-            self.s_op(5);
+            self.pipe_op(5);
         } else {
-
+            /*
             if n + 10 > self.pos.x as usize {
                 self.pos.y += 1;
                 self.put('\\');
@@ -136,10 +135,10 @@ impl CodeGen {
                 }
             } else {
                 self.pos.y += 1;
-                self.putstr(lconcat!(
-                    r#"\"#,
-                    r#"|"#,
-                    r#"/"#
+                self.putstr(&lcat!(
+                    r"\ ",
+                    r"|",
+                    r"/"
                 ));
                 self.pos += Vec2::new(-1, 2);
                 
@@ -149,51 +148,58 @@ impl CodeGen {
                 }
                 
                 self.pos.y += 1;
-                self.putstr(lconcat!(
+                self.putstr(&lcat!(
                     r"/",
                     r"|",
                     r"\_"
                 ));
-                self.pos += Vec2::new(2, 3);
+                self.pos += Vec2::new(2, 2);
+            }*/
+            let closest_dir = self.get_closest_score();
+            self.change_dir(closest_dir);
+            for _ in 0..(n + 1) {
+                self.put('_');
+                self.pos += self.dir.to_vec();
             }
         }
     }
 
-    fn se_op(&mut self, n: usize) {
+    fn bslash_op(&mut self, n: usize) {
         self.pos.y += 1;
         for _ in 0..n {
             self.put('\\');
-            self.pos.x += 1;
-            self.pos.y += 1;
+            self.pos += Vec2::new(1, 1);
         }
         self.pos.y -= 1;
         self.put('_');
         self.pos.x += 1;
     }
     
-    fn s_op(&mut self, n: usize) {
+    fn pipe_op(&mut self, n: usize) {
         self.pos.y += 1;
         self.put('\\');
         self.pos.y += 1;
-        for i in 0..n {
+        for _ in 0..n {
             self.put('|'); self.pos.y += 1;
         }
-        self.put('\\');
-        self.pos.x += 1;
-        self.put('_');
-        self.pos.x += 1;
+        self.putstr(r"\_");
+        self.pos.x += 2;
     }
 
-    pub fn add(&mut self) { self.s_op(2); }
-    pub fn sub(&mut self) { self.s_op(3); }
-    pub fn mul(&mut self) { self.s_op(4); }
-    pub fn div(&mut self) { self.s_op(6); }
+    fn slash_op(&mut self, n: usize) {
+        
+    }
 
-    pub fn dup(&mut self) { self.se_op(2); }
-    pub fn swap(&mut self) { self.se_op(3); }
-    pub fn getch(&mut self) { self.se_op(4); }
-    pub fn putd(&mut self) { self.se_op(5); }
-    pub fn putc(&mut self) { self.se_op(6); }
+    pub fn add(&mut self) { self.pipe_op(2); }
+    pub fn sub(&mut self) { self.pipe_op(3); }
+    pub fn mul(&mut self) { self.pipe_op(4); }
+    pub fn div(&mut self) { self.pipe_op(6); }
+
+    pub fn dup(&mut self) { self.bslash_op(2); }
+    pub fn swap(&mut self) { self.bslash_op(3); }
+    pub fn getch(&mut self) { self.bslash_op(4); }
+    pub fn putd(&mut self) { self.bslash_op(5); }
+    pub fn putc(&mut self) { self.bslash_op(6); }
     
     pub fn halt(&mut self) {
         self.put('@');
@@ -253,11 +259,12 @@ fn main() {
     cg.push(108);
     cg.push(101);
     cg.push(72);
-    for i in 0..14 {
+    /*for _ in 0..14 {
         cg.putc();
-    }
+    }*/
     cg.halt();
     let src = cg.src();
-    let mut file_ref = std::fs::File::create("example").expect("create failed");
-    write!(file_ref, "{}", src);
+    print!("{}", src);
+    //let mut file_ref = std::fs::File::create("example").expect("create failed");
+    //write!(file_ref, "{}", src).unwrap();
 }
