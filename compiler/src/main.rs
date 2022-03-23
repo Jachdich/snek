@@ -103,18 +103,52 @@ impl CodeGen {
         }
     }
 
+    fn go(&mut self, dir: Dir) {
+        self.pos += dir.to_vec();
+    }
+
     fn change_dir(&mut self, dir: Dir) {
         if dir == self.dir {
             match dir {
                 Dir::N  => { self.put('/'); self.pos.y -= 1; }
                 Dir::NE => { self.put('_'); self.pos.x += 1; }
                 Dir::E  => { self.pos.y += 1; self.put('\\'); self.pos.x += 1; }
-                Dir::SE => { self.pos.y -= 1; self.put('_'); self.pos += Vec2{1, 1}; }
+                Dir::SE => { self.pos.y -= 1; self.put('_'); self.go(Dir::SE); }
                 Dir::S  => { self.put('/'); self.pos.y += 1; }
-                Dir::SW => { self.pos.y -= 1; self.put('_'); self.pos += Vec2{1, 1}; }
-                Dir::W  => { self.put('\\'); self.pos += Vec2{-1, -1}; }
-                Dir::NW => { self.put}
+                Dir::SW => { self.pos.y -= 1; self.put('_'); self.go(Dir::SE); }
+                Dir::W  => { self.put('\\'); self.go(Dir::NW); }
+                Dir::NW => { self.put('_'); self.pos.x -= 1; }
             }
+        }
+
+        match self.dir {
+            Dir::N => {
+                match dir {
+                    Dir::N  => (), //already handled above
+                    Dir::NE => { self.put('/'); self.go(Dir::NE); }
+                    Dir::E  => { self.change_dir(Dir::NE); self.put('_'); self.go(Dir::E); }
+                    Dir::SE => { self.change_dir(Dir::E);  self.go(Dir::S); self.put('\\'); self.go(Dir::SE); }
+                    Dir::S  => { self.change_dir(Dir::SE); self.go(Dir::W); self.put('|');  self.go(Dir::S); }
+                    Dir::SW => { self.change_dir(Dir::W);  self.go(Dir::S); self.put('/');  self.go(Dir::S); }
+                    Dir::W  => { self.change_dir(Dir::NW); self.put('_'); self.go(Dir::E); }
+                    Dir::NW => { self.put('\\'); self.go(Dir::NW); }
+                }
+            },
+
+            Dir::NE => {
+                match dir {
+                    Dir::N  => { self.put('|'); self.go(Dir::N); } //TODO optimise
+                    Dir::NE => (),
+                    Dir::E  => { self.put('_'); self.go(Dir:: }
+                    Dir::SE => { self.change_dir(Dir::E);  self.go(Dir::S); self.put('\\'); self.go(Dir::SE); }
+                    Dir::S  => { self.change_dir(Dir::SE); self.go(Dir::W); self.put('|');  self.go(Dir::S); }
+                    Dir::SW => { self.change_dir(Dir::W);  self.go(Dir::S); self.put('/');  self.go(Dir::S); }
+                    Dir::W  => { self.change_dir(Dir::NW); self.put('_'); self.go(Dir::E); }
+                    Dir::NW => { self.put('\\'); self.go(Dir::NW); }
+                }
+            }
+            
+            _ => ()
         }
 
         self.dir = dir;
@@ -245,7 +279,7 @@ fn main() {
     cg.putd();
     cg.halt();
     */
-    cg.push(10);
+    /*cg.push(10);
     cg.push(33);
     cg.push(100);
     cg.push(108);
@@ -258,10 +292,11 @@ fn main() {
     cg.push(108);
     cg.push(108);
     cg.push(101);
-    cg.push(72);
+    cg.push(72);*/
     /*for _ in 0..14 {
         cg.putc();
     }*/
+
     cg.halt();
     let src = cg.src();
     print!("{}", src);
