@@ -106,6 +106,10 @@ impl CodeGen {
     fn go(&mut self, dir: Dir) {
         self.pos += dir.to_vec();
     }
+    
+    fn fw(&mut self) {
+        self.pos += self.dir.to_vec();
+    }
 
     fn change_dir(&mut self, dir: Dir) {
         if dir == self.dir {
@@ -128,12 +132,24 @@ impl CodeGen {
                     Dir::NE => (),
                     Dir::E  => { self.put('/'); self.go(Dir::NE); }
                     Dir::SE => { self.change_dir(Dir::E);  self.put('_'); self.go(Dir::SE); }
-                    Dir::S  => { self.change_dir(Dir::SE); self.put('|'); self.go(Dir::S); }
-                    Dir::SW => { self.change_dir(Dir::W);  self.go(Dir::S); self.put('/');  self.go(Dir::S); }
-                    Dir::W  => { self.change_dir(Dir::NW); self.put('_'); self.go(Dir::E); }
-                    Dir::NW => { self.put('\\'); self.go(Dir::NW); }
+                    Dir::S  => { self.change_dir(Dir::SE); self.put('\\'); self.go(Dir::S); }
+                    Dir::SW => { self.change_dir(Dir::W);  self.put('_');  self.go(Dir::SW); }
+                    Dir::W  => { self.put('\\'); self.go(Dir::NW); }
+                    Dir::NW => (),
                 }
             },
+            Dir::NE => {
+                match dir {
+                    Dir::N  => (),
+                    Dir::NE => (),
+                    Dir::E  => (),
+                    Dir::SE => (),
+                    Dir::S  => (),
+                    Dir::SW => (),
+                    Dir::W  => (),
+                    Dir::NW => (),
+                }
+            }
             _ => ()
         }
 
@@ -282,6 +298,17 @@ fn main() {
     /*for _ in 0..14 {
         cg.putc();
     }*/
+
+    cg.change_dir(Dir::E);
+    cg.put('_');
+    cg.fw();
+    cg.pos += Vec2::new(10, 10);
+    cg.put('|');
+    cg.dir = Dir::N;
+    cg.fw();
+    cg.change_dir(Dir::SW);
+    cg.put('/');
+    cg.fw();
 
     cg.halt();
     let src = cg.src();
