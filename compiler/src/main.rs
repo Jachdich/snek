@@ -140,14 +140,14 @@ impl CodeGen {
             },
             Dir::NE => {
                 match dir {
-                    Dir::N  => (),
+                    Dir::N  => { self.go(Dir::W); },
                     Dir::NE => (),
                     Dir::E  => (),
-                    Dir::SE => (),
-                    Dir::S  => (),
-                    Dir::SW => (),
-                    Dir::W  => (),
-                    Dir::NW => (),
+                    Dir::SE => { self.put('_'); self.go(Dir::SE); },
+                    Dir::S  => { self.change_dir(Dir::SE); self.put('\\'); self.go(Dir::S); },
+                    Dir::SW => { self.change_dir(Dir::S);  self.put('|');  self.go(Dir::S); },
+                    Dir::W  => { self.change_dir(Dir::NW); self.put('\\'); self.go(Dir::NW); },
+                    Dir::NW => { self.change_dir(Dir::N);  self.put('|');  self.go(Dir::N); },
                 }
             }
             _ => ()
@@ -303,11 +303,11 @@ fn main() {
     cg.put('_');
     cg.fw();
     cg.pos += Vec2::new(10, 10);
-    cg.put('|');
-    cg.dir = Dir::N;
-    cg.fw();
-    cg.change_dir(Dir::SW);
     cg.put('/');
+    cg.dir = Dir::NE;
+    cg.fw();
+    cg.change_dir(Dir::W);
+    cg.put('_');
     cg.fw();
 
     cg.halt();
