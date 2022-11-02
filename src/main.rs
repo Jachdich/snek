@@ -365,7 +365,12 @@ impl Interpreter {
 }
 
 fn main() {
-    let program = std::fs::read_to_string("example").unwrap();
+let args: Vec<String> = std::env::args().collect();
+    if args.len() < 2 {
+        println!("Usage: {} <filename>", args[0]);
+        return;
+    }
+    let program = std::fs::read_to_string(&args[1]).unwrap();
     let mut interp = Interpreter::new(program);
     interp.run();
 }
