@@ -114,14 +114,14 @@ impl CodeGen {
     fn change_dir(&mut self, dir: Dir) {
         if dir == self.dir {
             match dir {
-                Dir::N  => { self.put('/'); self.pos.y -= 1; }
-                Dir::NE => { self.put('_'); self.pos.x += 1; }
-                Dir::E  => { self.pos.y += 1; self.put('\\'); self.pos.x += 1; }
-                Dir::SE => { self.pos.y -= 1; self.put('_'); self.go(Dir::SE); }
-                Dir::S  => { self.put('/'); self.pos.y += 1; }
-                Dir::SW => { self.pos.y -= 1; self.put('_'); self.go(Dir::SE); }
+                Dir::N  => { self.put('/'); self.go(Dir::N); }
+                Dir::NE => { self.put('_'); self.go(Dir::E); }
+                Dir::E  => { self.go(Dir::S); self.put('\\'); self.go(Dir::E); }
+                Dir::SE => { self.go(Dir::N); self.put('_'); self.go(Dir::SE); }
+                Dir::S  => { self.put('/'); self.go(Dir::S); }
+                Dir::SW => { self.go(Dir::N); self.put('_'); self.go(Dir::SE); }
                 Dir::W  => { self.put('\\'); self.go(Dir::NW); }
-                Dir::NW => { self.put('_'); self.pos.x -= 1; }
+                Dir::NW => { self.put('_'); self.go(Dir::W); }
             }
         }
 
@@ -149,6 +149,13 @@ impl CodeGen {
                     Dir::W  => { self.change_dir(Dir::NW); self.put('\\'); self.go(Dir::NW); },
                     Dir::NW => { self.change_dir(Dir::N);  self.put('|');  self.go(Dir::N); },
                 }
+            }
+            Dir::E => {
+                Dir::N => 
+
+                Dir::E => (),
+                Dir::SE => { self.go(Dir::SE); },
+                Dir::S  => { self.change_dir(Dir::SE); self.put('\\'); self.go(Dir::W); },
             }
             _ => ()
         }
